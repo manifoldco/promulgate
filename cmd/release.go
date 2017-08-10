@@ -8,6 +8,7 @@ import (
 	"github.com/urfave/cli"
 
 	"github.com/manifoldco/promulgate/artifact"
+	"github.com/manifoldco/promulgate/brew"
 	"github.com/manifoldco/promulgate/changelog"
 	"github.com/manifoldco/promulgate/git"
 	"github.com/manifoldco/promulgate/github"
@@ -87,8 +88,10 @@ func releaseCmd(cmd *cli.Context) error {
 	} else {
 
 		body := "*No changelog entry*"
-		if sec, ok := cl[tag]; ok {
+		if sec, ok := cl[tag[1:]]; ok {
 			body = sec.Body
+		} else {
+			return cli.NewExitError("No changelog entry found", -1)
 		}
 
 		rel := &artifact.Release{
@@ -111,16 +114,53 @@ func releaseCmd(cmd *cli.Context) error {
 		}
 	}
 
+	var darwin *artifact.File
+	for _, zip := range zips {
+		wanted := fmt.Sprintf("%s_%s_%s.zip", r.Name, tag[1:], "darwin_amd64")
+		if zip.Name == wanted {
+			darwin = &zip
+			break
+		}
+	}
+
+	bottles, binname, err := brew.NewBottles(darwin, r, tag[1:])
+	if err != nil {
+		return cli.NewExitError("Could not convert zip into bottle: "+err.Error(), -1)
+	}
+
+	gr, err := c.Info(ctx)
+	if err != nil {
+		return cli.NewExitError("Could not get repository info from github: "+err.Error(), -1)
+	}
+
+	formula, err := brew.NewFormula(r, tag, binname, gr.Homepage, gr.Description, "https://releases.manifold.co/", bottles)
+	if err != nil {
+		return cli.NewExitError("Could not create brew formula", -1)
+	}
+
+	bc, err := github.New(&git.Repository{
+		Owner: r.Owner,
+		Name:  "homebrew-brew",
+	})
+	if err != nil {
+		return cli.NewExitError("Could not create homebrew repo client: "+err.Error(), -1)
+	}
+
+	err = bc.Commit(ctx, r, tag, formula)
+	if err != nil {
+		return cli.NewExitError("Could not update homebrew formula: "+err.Error(), -1)
+	}
+
 	s3c, err := s3.New("s3://releases.manifold.co")
 	if err != nil {
 		return cli.NewExitError("Could not create s3 client: "+err.Error(), -1)
 	}
 
-	for _, zip := range zips {
-		err := s3c.Put(ctx, &zip)
+	s3files := append(zips, bottles...)
+	for _, file := range s3files {
+		err := s3c.Put(ctx, &file)
 		if err != nil {
 			return cli.NewExitError("Could not upload file to s3: "+err.Error(), -1)
-
 		}
 	}
 

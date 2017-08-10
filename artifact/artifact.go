@@ -1,8 +1,10 @@
 package artifact
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -13,6 +15,12 @@ type Release struct {
 	Body string // markdown formatted release notes
 }
 
+// Multireader exposes many reader interfaces
+type Multireader interface {
+	io.ReadSeeker
+	io.ReaderAt
+}
+
 // File represents a file on disk
 type File struct {
 	Name string
@@ -20,7 +28,18 @@ type File struct {
 	Type string
 
 	Size int64
-	Data io.Reader
+	Data Multireader
+}
+
+// Reader returns an io.Reader for the file.
+func (f *File) Reader() io.Reader {
+	f.Data.Seek(0, io.SeekStart)
+	return f.Data
+}
+
+// ReaderAt returns an io.ReaderAt for the file.
+func (f *File) ReaderAt() io.ReaderAt {
+	return f.Data
 }
 
 // FindZips finds the pre-built zips for the given tag in the given directory
@@ -57,4 +76,14 @@ func FindZips(path, project, tag string) ([]File, error) {
 	}
 
 	return zips, nil
+}
+
+// Sha256 returns the hex encoded
+func (f *File) Sha256() (string, error) {
+	b, err := ioutil.ReadAll(f.Reader())
+	if err != nil {
+		return "", err
+	}
+	sum := sha256.Sum256(b)
+	return fmt.Sprintf("%x", sum), nil
 }

@@ -1,10 +1,14 @@
 package github
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 
@@ -35,6 +39,25 @@ func New(repo *git.Repository) (*Client, error) {
 	return &Client{
 		c: github.NewClient(tc),
 		r: repo,
+	}, nil
+}
+
+// Info holds information about a github repo
+type Info struct {
+	Description string
+	Homepage    string
+}
+
+// Info returns the meta info about a repo
+func (c *Client) Info(ctx context.Context) (*Info, error) {
+	r, _, err := c.c.Repositories.Get(ctx, c.r.Owner, c.r.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Info{
+		Homepage:    *r.Homepage,
+		Description: *r.Description,
 	}, nil
 }
 
@@ -102,14 +125,45 @@ func (c *Client) AddArtifact(ctx context.Context, rel *artifact.Release, file *a
 		return err
 	}
 
-	u := fmt.Sprintf("repos/%s/%s/releases/%d/assets", c.r.Owner, c.r.Name, *ghr.ID)
+	u := fmt.Sprintf("repos/%s/%s/releases/%d/assets?name=%s", c.r.Owner, c.r.Name, *ghr.ID, file.Name)
 
-	req, err := c.c.NewUploadRequest(u, file.Data, file.Size, file.Type)
+	var buf bytes.Buffer
+	_, err = io.Copy(&buf, file.Reader())
+	if err != nil {
+		return err
+	}
+
+	req, err := c.c.NewUploadRequest(u, &buf, file.Size, file.Type)
 	if err != nil {
 		return err
 	}
 
 	_, err = c.c.Do(ctx, req, nil)
+	return err
+}
+
+// Commit commits a file to the repo
+func (c *Client) Commit(ctx context.Context, repo *git.Repository, tag string, file *artifact.File) error {
+
+	b, err := ioutil.ReadAll(file.Reader())
+	if err != nil {
+		return err
+	}
+
+	path := filepath.Join("Formula", repo.Name+".rb")
+	msg := "Update formula for " + repo.Name + " to " + tag
+	opts := &github.RepositoryContentFileOptions{
+		Message: &msg,
+		Content: b,
+	}
+
+	// try and get the sha of the existing file, if there is one.
+	fc, _, _, err := c.c.Repositories.GetContents(ctx, c.r.Owner, c.r.Name, path, nil)
+	if err == nil {
+		opts.SHA = fc.SHA
+	}
+
+	_, _, err = c.c.Repositories.CreateFile(ctx, c.r.Owner, c.r.Name, path, opts)
 	return err
 }
 
