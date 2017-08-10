@@ -1,0 +1,5 @@
+
+
+[[constraint]]
+  name = "github.com/src-d/go-git"
+  version = "4.0.0-rc13"
