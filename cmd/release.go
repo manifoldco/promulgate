@@ -71,6 +71,11 @@ func releaseCmd(cmd *cli.Context) error {
 
 	tagsWithNoRelease := tags.Difference(releases)
 
+	zips, err := artifact.FindZips("build", r.Name, tag[1:])
+	if err != nil {
+		return cli.NewExitError("Could not find all build zips: "+err.Error(), -1)
+	}
+
 	found = false
 	for _, t := range tagsWithNoRelease {
 		if *t.Name == tag {
@@ -96,11 +101,14 @@ func releaseCmd(cmd *cli.Context) error {
 		if err != nil {
 			return cli.NewExitError("Could not create release: "+err.Error(), -1)
 		}
-	}
 
-	zips, err := artifact.FindZips("build", r.Name, tag[1:])
-	if err != nil {
-		return cli.NewExitError("Could not find all build zips: "+err.Error(), -1)
+		fmt.Println("Adding built zips")
+		for _, zip := range zips {
+			err := c.AddArtifact(ctx, rel, &zip)
+			if err != nil {
+				return cli.NewExitError("Couldn't upload zip: "+err.Error(), -1)
+			}
+		}
 	}
 
 	s3c, err := s3.New("s3://releases.manifold.co")

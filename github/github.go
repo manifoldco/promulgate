@@ -3,6 +3,7 @@ package github
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"sort"
 	"strings"
@@ -91,6 +92,24 @@ func (c *Client) CreateRelease(ctx context.Context, rel *artifact.Release) error
 		Body:    github.String(rel.Body),
 	})
 
+	return err
+}
+
+// AddArtifact adds a file on to a release
+func (c *Client) AddArtifact(ctx context.Context, rel *artifact.Release, file *artifact.File) error {
+	ghr, _, err := c.c.Repositories.GetReleaseByTag(ctx, c.r.Owner, c.r.Name, rel.Tag)
+	if err != nil {
+		return err
+	}
+
+	u := fmt.Sprintf("repos/%s/%s/releases/%d/assets", c.r.Owner, c.r.Name, *ghr.ID)
+
+	req, err := c.c.NewUploadRequest(u, file.Data, file.Size, file.Type)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.c.Do(ctx, req, nil)
 	return err
 }
 
