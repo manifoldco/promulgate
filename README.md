@@ -18,6 +18,7 @@
 ## Overview
 
 promulgate is used in manifold to release our cli tools. It:
-- creates Github releases from changelog contents
+- creates github releases from changelog contents
+- adds built zip files to the github release
 - uploads zip files to s3 (which backs https://releases.manifold.co)
 - rebuilds the index files on s3

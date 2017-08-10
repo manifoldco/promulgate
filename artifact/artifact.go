@@ -19,6 +19,7 @@ type File struct {
 	Path string
 	Type string
 
+	Size int64
 	Data io.Reader
 }
 
@@ -39,10 +40,16 @@ func FindZips(path, project, tag string) ([]File, error) {
 			return nil, err
 		}
 
+		s, err := f.Stat()
+		if err != nil {
+			return nil, err
+		}
+
 		zip := File{
 			Name: filepath.Base(full),
 			Path: filepath.Join(project, tag),
 			Type: "application/zip",
+			Size: s.Size(),
 			Data: f,
 		}
 
