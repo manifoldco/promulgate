@@ -1,17 +1,25 @@
 language: go
 go:
-  - 1.8.x
-
+- 1.8.x
 branches:
   only:
-    - master
-    - "/^v([0-9]+)\\.([0-9]+)\\.([0-9]+)(?:\\-(rc\\.[0-9]+)*)?$/"
-
+  - master
+  - /^v([0-9]+)\.([0-9]+)\.([0-9]+)(?:\-(rc\.[0-9]+)*)?$/
 before_install:
-  - export PATH=$PATH:$GOPATH/bin
-
+- export PATH=$PATH:$GOPATH/bin
 install:
-  - make bootstrap
-
+- make bootstrap
 script:
-  - make ci
+- make ci
+deploy:
+- provider: script
+  script: make zips && bin/promulgate release $TRAVIS_TAG
+  skip_cleanup: true
+  on:
+    tags: true
+    repo: manifoldco/marketplace
+env:
+  global:
+  - secure: H0Brr6ZF1QWWyuAN00NoBgV7iqeipxJXfPenkJAKbSDoH5qqX3v/DlwF8dvblSc+Oz6czEiXrXe3pdwnLB3lMVuuH2qwIHZ4SKKYQ/fLACfO2XZph6yND/KwlzFgkN4oYobrLPJAj9AjRfAvZtOJKFROezaDaKaf7eyoiTEQhyHcyPxDW2+jk4UdHDi+8noLpDtvfwG48CJDvFU2buM7+xfpnpAPHnD5c7kzLgIac1P+BwQI60SlWjVN0Ae1wtgVDv3Qr/QlO250jmtNWoOXs6vRmp5mGE5GhZEfzTdoVpaJMgDqrvrHeiUoRVdh0paHzAl19cavWXclVtJnkw9OzXEOKMfoPFG8YcGTIF7uEliT01Aal0BCe1W06bq66NVfCedzjKYdMUwP1uR4EaECgOBV9s4ahzffL3nHQx0S3po/UTu4xrPG6FhiBt/yjqxQ68Ri1Q33d4YKCb53ODAwVG3ttSwPQDs3RKjRQzuLgYP6TDUXuTZCEpo7VJQ9wWzVEbdalOO9jJx/3Cz0O588/k50DzgCNtMDiL1Fpcsk85riMN7h8kk1mc7KC1j+C+NBIZJq++7IjcFmfohA9ELFdhQbAmj5+N14piqrUYtgqxDaejy75UdcKld3NkW3H4s2wjHvlc7WWJ0dOLJk+EzLxIaIlX7GWdt7+vIhc/7ROpY=
+  - secure: kh89Ctn0ApoXh54bKswQmxnoJEhltI2hiFuww6CrQ7B5YqhtdcchrIkrxPcQ3S/Sl+B8gIxHcTCj+CeCprDh4CxDtLYAJdum/u3ZCWLZlyAjuocx8yspSUe+uoT6CUb7g8vMj1JCILjfEbcZ8seWjQEl4V7GofwJwL3AE0yso+Uiq15Yzzay8uT0ei8jN4I0rbyFB6zcR3ej3JoQp2T0CT5z8O8drzFCf17EuDggQZ8t2rsJFtwYwJ4j8AJfnWapI+pEHSM3efkaJhs5nui2QeU/+Pg5A95WwGsWw24y4dlJMMSYdNe3IMS0Xnj7g16MCzXLGUBV6tz64wK9wqT21bA0PlSW1fwj8/DbCVvifYMRglqjtQiENqEG7Bq0VPAorg6dHcq/azw35E327Ty36b8b6cURBKI0VZ5Ff87gAnx8NOCndzUyYtYd6NYa53iBU+IR96BlySJNn+AOz8SlF3+tvpMzNnIX+dq6UYBjS4TP6mSX5x+/GMb87dD2Ewy1Xm6RxzfCYfih7+5JeDeovdRb6r82DGwEN6d3/LF3mz/Hw+7h820EPilK+1gRMC3QrzKg8Vw6HN3seT3RynaBI75EkJ2Bj64uQOMmKYwYAC9cTz+O+8fhXwyPXn/Oqex5mcBLBDRbIZngdPwF+O8O1klm5dgJzUP6GkJ0bT/E0JM=
+  - secure: JD6qw2kK7ndAcCDtw3Ksr5NvFbzVgyhvY8B5dEs59qkRCJOouTOmSyOINnyJ8IDrBW93NjMec8vnQ9tDlOC0M4DkQiBoXqmP3RmCBedjfAcHb1BDw0tpa7oWF1uFG+P/s+l5OiGSKBYq+wtAfRdRZiqlYqo/AEuW9K3FHGLl8wHXbQl4S6MRwTHXiKRdpOXiEjGn43coOoq9inIZhwV+5WK/PC87u4QhHlnNonLRk6bbH3fMxF2E/DbAJ/aT9pa30JFLOExVWxwwaS6Ozd5OEpGTJZefYKp4iJeCUhCmsdmm5ZwFH/V/beXPufz+/38wvLAQ8i7THLxwRddzd1vYuQD5QDqS1Kk6aOoL9S3p5Z4TjbzcddPg7dYsU9Ul0Af/HLRiYTFU6IxHutSPqfdsDGtOCHOn4nWMQE+iW4I/pIXBy1vkCwcEdVwVCof2wtqtsLGp0tTEa8Ozt3C8UDZU3YMiwc3gWhSu8asfx5bw2lKXbzrNHvYRPEjqefX/d5GsHnJXkh6WThUoi0LEXJX9BL0QotcQrqIAZhmIO6WlYJbyb1Y+FVjyzb9UUXyRnq3ZPQVHorctYmJaOxNCxi4OhvyF5dabi9OMTG4psz0DRRm1gcfOEaFuWMR9p39NBTn/DKO5DhMHy3mi6nQuvLXrl3ePCZXqEl1msi0L0FDqK+E=
