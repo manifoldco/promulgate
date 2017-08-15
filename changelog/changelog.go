@@ -5,7 +5,7 @@ import (
 	"regexp"
 )
 
-var sectionHeader = regexp.MustCompile(`(?m:^##\s+(v[0-9]+\.[0-9]+\.[0-9]+)\s*$)`)
+var sectionHeader = regexp.MustCompile(`(?m:^##\s+\[([0-9]+\.[0-9]+\.[0-9]+)\].*$)`)
 
 // Section holds CHANGELOG.md sections, mapping the release tag to the body
 // contents.

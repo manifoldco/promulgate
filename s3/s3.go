@@ -42,7 +42,7 @@ func (c *Client) Put(ctx context.Context, file *artifact.File) error {
 	_, err := uploader.UploadWithContext(ctx, &s3manager.UploadInput{
 		Bucket:       aws.String(c.bucket),
 		Key:          aws.String(filepath.Join(file.Path, file.Name)),
-		Body:         file.Data,
+		Body:         file.Reader(),
 		CacheControl: aws.String("public, max-age=604800"),
 		ContentType:  aws.String(file.Type),
 	})
