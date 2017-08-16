@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.0.4] - 2017-08-16
+
 ### Fixed
 
 - Handle git repos that don't end in .git when detecting configuration
