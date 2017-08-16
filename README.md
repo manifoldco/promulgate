@@ -22,3 +22,18 @@ promulgate is used in manifold to release our cli tools. It:
 - adds built zip files to the github release
 - uploads zip files to s3 (which backs https://releases.manifold.co)
 - rebuilds the index files on s3
+
+## Configuring a repository for promulgate
+
+You'll need to set the following env vars:
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `GITHUB_TOKEN`
+
+With those set, have your release step call `promulgate release <VERSION>`.
+
+## Using to release
+
+Make sure to keep your CHANGELOG.md up to date. When it's time to release,
+create a new `Unreleased` section, and name the old one to match the release
+tag. Commit this change, tag it with the release version, and push to master.
