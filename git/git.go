@@ -32,7 +32,11 @@ func Open(path string) (*Repository, error) {
 			parts = strings.SplitN(parts[len(parts)-1], "/", -1)
 			owner := parts[len(parts)-2]
 			name := parts[len(parts)-1]
-			name = name[:len(name)-4]
+
+			if strings.HasSuffix(name, ".git") {
+				name = name[:len(name)-4]
+			}
+
 			return &Repository{
 				Owner: owner,
 				Name:  name,
