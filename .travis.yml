@@ -17,7 +17,7 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
-    repo: manifoldco/marketplace
+    repo: manifoldco/promulgate
 env:
   global:
   - secure: H0Brr6ZF1QWWyuAN00NoBgV7iqeipxJXfPenkJAKbSDoH5qqX3v/DlwF8dvblSc+Oz6czEiXrXe3pdwnLB3lMVuuH2qwIHZ4SKKYQ/fLACfO2XZph6yND/KwlzFgkN4oYobrLPJAj9AjRfAvZtOJKFROezaDaKaf7eyoiTEQhyHcyPxDW2+jk4UdHDi+8noLpDtvfwG48CJDvFU2buM7+xfpnpAPHnD5c7kzLgIac1P+BwQI60SlWjVN0Ae1wtgVDv3Qr/QlO250jmtNWoOXs6vRmp5mGE5GhZEfzTdoVpaJMgDqrvrHeiUoRVdh0paHzAl19cavWXclVtJnkw9OzXEOKMfoPFG8YcGTIF7uEliT01Aal0BCe1W06bq66NVfCedzjKYdMUwP1uR4EaECgOBV9s4ahzffL3nHQx0S3po/UTu4xrPG6FhiBt/yjqxQ68Ri1Q33d4YKCb53ODAwVG3ttSwPQDs3RKjRQzuLgYP6TDUXuTZCEpo7VJQ9wWzVEbdalOO9jJx/3Cz0O588/k50DzgCNtMDiL1Fpcsk85riMN7h8kk1mc7KC1j+C+NBIZJq++7IjcFmfohA9ELFdhQbAmj5+N14piqrUYtgqxDaejy75UdcKld3NkW3H4s2wjHvlc7WWJ0dOLJk+EzLxIaIlX7GWdt7+vIhc/7ROpY=
