@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.0.5] - 2017-08-16
+
+### Fixed
+
+- AWS_REGION is required
+
 ## [0.0.4] - 2017-08-16
 
 ### Fixed

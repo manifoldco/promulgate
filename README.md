@@ -28,6 +28,7 @@ promulgate is used in manifold to release our cli tools. It:
 You'll need to set the following env vars:
 - `AWS_ACCESS_KEY_ID`
 - `AWS_SECRET_ACCESS_KEY`
+- `AWS_REGION`
 - `GITHUB_TOKEN`
 
 With those set, have your release step call `promulgate release <VERSION>`.
