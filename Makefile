@@ -26,7 +26,7 @@ ci: $(LINTERS) build
 
 CMD_PKGS=\
 	github.com/golang/lint/golint \
-	honnef.co/go/simple/cmd/gosimple \
+	github.com/dominikh/go-tools/simple \
 	github.com/client9/misspell/cmd/misspell \
 	github.com/gordonklaus/ineffassign \
 	github.com/tsenart/deadcode \
