@@ -32,6 +32,12 @@
   version = "v0.3.0"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/dominikh/go-tools"
+  packages = ["simple"]
+  revision = "49f44f893d933fd08cd7d67d65ccefa5d7c23329"
+
+[[projects]]
   name = "github.com/go-ini/ini"
   packages = ["."]
   revision = "d3de07a94d22b4a0972deb4b96d790c2c0ce8333"
@@ -84,12 +90,6 @@
   packages = ["."]
   revision = "3433f3ea46d9f8019119e7dd41274e112a2359a9"
   version = "0.2.2"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/kisielk/gotool"
-  packages = ["."]
-  revision = "0de1eaf82fa3f583ce21fde859f1e7e0c5e9b220"
 
 [[projects]]
   name = "github.com/nicksnyder/go-i18n"
@@ -201,13 +201,13 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/dominikh/go-tools"
-  packages = [".","lint/lintutil","simple","ssa"]
-  revision = "49f44f893d933fd08cd7d67d65ccefa5d7c23329"
+  name = "honnef.co/go/tools"
+  packages = ["internal/sharedcheck","lint","ssa","ssa/ssautil"]
+  revision = "df775ad069fd6c9ae2bcc8d90d8a01ccf9326f29"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "06499ed9d2044308fd17195e4c30f432d6298fa1458828f8e499f8d6b10b322a"
+  inputs-digest = "f02c4a91b9831580b914dc38793ae3586a24272cc660a9ed72307cbc00ea179e"
   solver-name = "gps-cdcl"
   solver-version = 1
