@@ -201,21 +201,9 @@
 
 [[projects]]
   branch = "master"
-  name = "honnef.co/go/lint"
-  packages = [".","lintutil"]
-  revision = "9ad746f5a7e0e84de969c026c26693d6b2f0af27"
-
-[[projects]]
-  branch = "master"
-  name = "honnef.co/go/simple"
-  packages = [".","cmd/gosimple"]
-  revision = "f274a8b1cf664433daac541609e0dfb818a2a87c"
-
-[[projects]]
-  branch = "master"
-  name = "honnef.co/go/ssa"
-  packages = ["."]
-  revision = "1cf7f34afde4f3f9cb9f7b15f8f2727ebcaa179a"
+  name = "github.com/dominikh/go-tools"
+  packages = [".","lint/lintutil","simple","ssa"]
+  revision = "49f44f893d933fd08cd7d67d65ccefa5d7c23329"
 
 [solve-meta]
   analyzer-name = "dep"
