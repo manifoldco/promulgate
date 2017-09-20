@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+- Add support for High Sierra
+
 ## [0.0.5] - 2017-08-16
 
 ### Fixed

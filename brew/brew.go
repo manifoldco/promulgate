@@ -16,7 +16,7 @@ import (
 	"github.com/manifoldco/promulgate/git"
 )
 
-var supportedReleases = []string{"sierra", "el_capitan", "yosemite"}
+var supportedReleases = []string{"high_sierra", "sierra", "el_capitan", "yosemite"}
 
 // NewBottles converts the provided zip file into a tarball suitable for use as
 // a brew bottle.
