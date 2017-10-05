@@ -81,9 +81,11 @@ $(PREFIX)bin/$(CMD)$(SUFFIX): vendor
 # Releasing
 #################################################
 
-OS_ARCH= \
+NO_WINDOWS= \
 	darwin_amd64 \
-	linux_amd64 \
+	linux_amd64
+OS_ARCH= \
+	$(NO_WINDOWS) \
 	windows_amd64
 
 os=$(word 1,$(subst _, ,$1))
@@ -95,8 +97,10 @@ $(OS_ARCH:%=os-build/%/bin/$(CMD)): os-build/%/bin/$(CMD):
 
 $(OS_ARCH:%=build/$(ZIP)_$(VERSION)_%.zip): build/$(ZIP)_$(VERSION)_%.zip: os-build/%/bin/$(CMD)$(call sfx,$*)
 	cd build/$*/bin; zip -r ../../$(ZIP)_$(VERSION)_$*.zip $(CMD)$(call sfx,$*)
+$(NO_WINDOWS:%=build/$(ZIP)_$(VERSION)_%.tar.gz): build/$(ZIP)_$(VERSION)_%.tar.gz: os-build/%/bin/$(CMD)$(call sfx,$*)
+	cd build/$*/bin; tar -czf ../../$(ZIP)_$(VERSION)_$*.tar.gz $(CMD)$(call sfx,$*)
 
-zips: $(OS_ARCH:%=build/$(ZIP)_$(VERSION)_%.zip)
+zips: $(NO_WINDOWS:%=build/$(ZIP)_$(VERSION)_%.tar.gz) build/$(ZIP)_$(VERSION)_windows_amd64.zip
 
 .PHONY: zips $(OS_ARCH:%=os-build/%/bin/manifold)
 
