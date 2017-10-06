@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -21,13 +22,21 @@ var supportedReleases = []string{"high_sierra", "sierra", "el_capitan", "yosemit
 // NewBottles converts the provided zip file into a tarball suitable for use as
 // a brew bottle.
 func NewBottles(darwin *artifact.File, repo *git.Repository, tag string) ([]artifact.File, string, error) {
-	zr, err := zip.NewReader(darwin.ReaderAt(), darwin.Size)
-	if err != nil {
-		return nil, "", err
+	var file io.Reader
+	var fi os.FileInfo
+	var err error
+
+	switch t := darwin.Type; t {
+	case artifact.Gzip:
+		file, fi, err = openGzip(darwin)
+	case artifact.Zip:
+		file, fi, err = openZip(darwin)
+	default:
+		err = fmt.Errorf("File format %s unknown", t)
 	}
 
-	if len(zr.File) != 1 {
-		return nil, "", errors.New("zip file must contain only 1 file")
+	if err != nil {
+		return nil, "", err
 	}
 
 	var buf bytes.Buffer
@@ -36,7 +45,6 @@ func NewBottles(darwin *artifact.File, repo *git.Repository, tag string) ([]arti
 	tgz := tar.NewWriter(gz)
 	defer tgz.Close()
 
-	fi := zr.File[0].FileInfo()
 	hdr, err := tar.FileInfoHeader(fi, "")
 	if err != nil {
 		return nil, "", err
@@ -51,12 +59,7 @@ func NewBottles(darwin *artifact.File, repo *git.Repository, tag string) ([]arti
 		return nil, "", err
 	}
 
-	zf, err := zr.File[0].Open()
-	if err != nil {
-		return nil, "", err
-	}
-
-	_, err = io.Copy(tgz, zf)
+	_, err = io.Copy(tgz, file)
 	if err != nil {
 		return nil, "", err
 	}
@@ -102,6 +105,55 @@ func NewBottles(darwin *artifact.File, repo *git.Repository, tag string) ([]arti
 		})
 	}
 	return bottles, binname, nil
+}
+
+func openGzip(darwin *artifact.File) (io.Reader, os.FileInfo, error) {
+	gz, err := gzip.NewReader(darwin.Reader())
+	if err != nil {
+		return nil, nil, err
+	}
+
+	r := tar.NewReader(gz)
+
+	for {
+		header, err := r.Next()
+		switch {
+		case err == io.EOF:
+			return nil, nil, err
+		case err != nil:
+			return nil, nil, err
+		case header == nil:
+			continue
+		}
+		data := make([]byte, header.Size)
+		_, err = r.Read(data)
+		if err != nil && err != io.EOF {
+			return nil, nil, err
+		}
+
+		return bytes.NewReader(data), header.FileInfo(), nil
+	}
+
+	return nil, nil, fmt.Errorf("Invalid tar file %s", darwin.Name)
+}
+func openZip(darwin *artifact.File) (io.Reader, os.FileInfo, error) {
+	zr, err := zip.NewReader(darwin.ReaderAt(), darwin.Size)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if len(zr.File) != 1 {
+		return nil, nil, errors.New("zip file must contain only 1 file")
+	}
+
+	fi := zr.File[0].FileInfo()
+
+	zf, err := zr.File[0].Open()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return zf, fi, err
 }
 
 // NewFormula returns a file whose contents are a valid brew formula

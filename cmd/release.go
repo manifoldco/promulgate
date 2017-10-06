@@ -115,12 +115,17 @@ func releaseCmd(cmd *cli.Context) error {
 	}
 
 	var darwin *artifact.File
-	for _, zip := range zips {
-		wanted := fmt.Sprintf("%s_%s_%s.zip", r.Name, tag[1:], "darwin_amd64")
-		if zip.Name == wanted {
-			darwin = &zip
+	gzip := fmt.Sprintf("%s_%s_%s.tar.gz", r.Name, tag[1:], "darwin_amd64")
+	zip := fmt.Sprintf("%s_%s_%s.zip", r.Name, tag[1:], "darwin_amd64")
+	for _, f := range zips {
+		if f.Name == gzip || f.Name == zip {
+			darwin = &f
 			break
 		}
+	}
+
+	if darwin == nil {
+		return cli.NewExitError("Could not find zip to convert to bottle", -1)
 	}
 
 	bottles, binname, err := brew.NewBottles(darwin, r, tag[1:])
