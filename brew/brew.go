@@ -133,9 +133,8 @@ func openGzip(darwin *artifact.File) (io.Reader, os.FileInfo, error) {
 
 		return bytes.NewReader(data), header.FileInfo(), nil
 	}
-
-	return nil, nil, fmt.Errorf("Invalid tar file %s", darwin.Name)
 }
+
 func openZip(darwin *artifact.File) (io.Reader, os.FileInfo, error) {
 	zr, err := zip.NewReader(darwin.ReaderAt(), darwin.Size)
 	if err != nil {

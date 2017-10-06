@@ -9,7 +9,10 @@ import (
 	"path/filepath"
 )
 
+// Zip represents a zip mimetype
 const Zip = "application/zip"
+
+// Gzip represents a gzip mimetype
 const Gzip = "application/gzip"
 
 // Release represents a release object
