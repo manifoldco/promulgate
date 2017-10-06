@@ -42,9 +42,9 @@ func (f *File) ReaderAt() io.ReaderAt {
 	return f.Data
 }
 
-// FindZips finds the pre-built zips for the given tag in the given directory
-func FindZips(path, project, tag string) ([]File, error) {
-	var zips []File
+// FindCompressedFiles finds the pre-built zips for the given tag in the given directory
+func FindCompressedFiles(path, project, tag string) ([]File, error) {
+	var files []File
 
 	osArches := []string{
 		"darwin_amd64",
@@ -52,30 +52,46 @@ func FindZips(path, project, tag string) ([]File, error) {
 		"windows_amd64",
 	}
 
-	for _, osArch := range osArches {
-		full := filepath.Join(path, fmt.Sprintf("%s_%s_%s.zip", project, tag, osArch))
-		f, err := os.Open(full)
-		if err != nil {
-			return nil, err
-		}
-
-		s, err := f.Stat()
-		if err != nil {
-			return nil, err
-		}
-
-		zip := File{
-			Name: filepath.Base(full),
-			Path: filepath.Join(project, tag),
-			Type: "application/zip",
-			Size: s.Size(),
-			Data: f,
-		}
-
-		zips = append(zips, zip)
+	formats := []struct {
+		extension string
+		mimetype  string
+	}{
+		{"zip", "application/zip"},
+		{"tar.gz", "application/gzip"},
 	}
 
-	return zips, nil
+	for _, osArch := range osArches {
+		for _, format := range formats {
+			name := fmt.Sprintf("%s_%s_%s.%s", project, tag, osArch, format.extension)
+			full := filepath.Join(path, name)
+
+			f, err := os.Open(full)
+			if os.IsNotExist(err) {
+				continue
+			}
+
+			if err != nil {
+				return nil, err
+			}
+
+			s, err := f.Stat()
+			if err != nil {
+				return nil, err
+			}
+
+			file := File{
+				Name: filepath.Base(full),
+				Path: filepath.Join(project, tag),
+				Type: format.mimetype,
+				Size: s.Size(),
+				Data: f,
+			}
+
+			files = append(files, file)
+		}
+	}
+
+	return files, nil
 }
 
 // Sha256 returns the hex encoded

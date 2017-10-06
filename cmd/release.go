@@ -72,7 +72,7 @@ func releaseCmd(cmd *cli.Context) error {
 
 	tagsWithNoRelease := tags.Difference(releases)
 
-	zips, err := artifact.FindZips("build", r.Name, tag[1:])
+	zips, err := artifact.FindCompressedFiles("build", r.Name, tag[1:])
 	if err != nil {
 		return cli.NewExitError("Could not find all build zips: "+err.Error(), -1)
 	}

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Support for `.tar.gz` files
+
 ## [0.0.6] - 2017-09-20
 
 ### Added
