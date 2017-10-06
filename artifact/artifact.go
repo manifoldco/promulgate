@@ -9,6 +9,12 @@ import (
 	"path/filepath"
 )
 
+// Zip represents a zip mimetype
+const Zip = "application/zip"
+
+// Gzip represents a gzip mimetype
+const Gzip = "application/gzip"
+
 // Release represents a release object
 type Release struct {
 	Tag  string // tag
@@ -56,8 +62,8 @@ func FindCompressedFiles(path, project, tag string) ([]File, error) {
 		extension string
 		mimetype  string
 	}{
-		{"zip", "application/zip"},
-		{"tar.gz", "application/gzip"},
+		{"zip", Zip},
+		{"tar.gz", Gzip},
 	}
 
 	for _, osArch := range osArches {

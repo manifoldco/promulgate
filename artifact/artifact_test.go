@@ -22,11 +22,11 @@ func TestFindCompressedFiles(t *testing.T) {
 	}
 
 	tcs := map[string]example{
-		"promulgate_0.0.1_linux_amd64.tar.gz":     {mimetype: "application/gzip", include: true},
-		"promulgate_0.0.1_linux_amd64.zip":        {mimetype: "application/zip", include: true},
-		"promulgate_0.0.1_darwin_amd64.tar.gz":    {mimetype: "application/gzip", include: true},
-		"promulgate_0.0.1_darwin_amd64.zip":       {mimetype: "application/zip", include: true},
-		"promulgate_0.0.1_windows_amd64.zip":      {mimetype: "application/zip", include: true},
+		"promulgate_0.0.1_linux_amd64.tar.gz":     {mimetype: Gzip, include: true},
+		"promulgate_0.0.1_linux_amd64.zip":        {mimetype: Zip, include: true},
+		"promulgate_0.0.1_darwin_amd64.tar.gz":    {mimetype: Gzip, include: true},
+		"promulgate_0.0.1_darwin_amd64.zip":       {mimetype: Zip, include: true},
+		"promulgate_0.0.1_windows_amd64.zip":      {mimetype: Zip, include: true},
 		"promulgate_0.0.2_linux_amd64.tar.gz":     {include: false},
 		"not_promulgate_0.0.1_linux_amd64.tar.gz": {include: false},
 	}
