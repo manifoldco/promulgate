@@ -41,7 +41,9 @@ func NewBottles(darwin *artifact.File, repo *git.Repository, tag string) ([]arti
 
 	var buf bytes.Buffer
 	gz := gzip.NewWriter(&buf)
+	defer gz.Close()
 	tgz := tar.NewWriter(gz)
+	defer tgz.Close()
 
 	hdr, err := tar.FileInfoHeader(fi, "")
 	if err != nil {
