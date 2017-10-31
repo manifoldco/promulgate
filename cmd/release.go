@@ -20,6 +20,12 @@ var release = cli.Command{
 	Usage:     "Create and publish a new release from the given tag",
 	ArgsUsage: "<tag>",
 	Action:    releaseCmd,
+	Flags: []cli.Flag{
+		cli.BoolTFlag{
+			Name:  "homebrew",
+			Usage: "Create a new Homebrew version",
+		},
+	},
 }
 
 func releaseCmd(cmd *cli.Context) error {
@@ -128,32 +134,36 @@ func releaseCmd(cmd *cli.Context) error {
 		return cli.NewExitError("Could not find zip to convert to bottle", -1)
 	}
 
-	bottles, binname, err := brew.NewBottles(darwin, r, tag[1:])
-	if err != nil {
-		return cli.NewExitError("Could not convert zip into bottle: "+err.Error(), -1)
-	}
+	if cmd.Bool("homebrew") {
+		bottles, binname, err := brew.NewBottles(darwin, r, tag[1:])
+		if err != nil {
+			return cli.NewExitError("Could not convert zip into bottle: "+err.Error(), -1)
+		}
 
-	gr, err := c.Info(ctx)
-	if err != nil {
-		return cli.NewExitError("Could not get repository info from github: "+err.Error(), -1)
-	}
+		gr, err := c.Info(ctx)
+		if err != nil {
+			return cli.NewExitError("Could not get repository info from github: "+err.Error(), -1)
+		}
 
-	formula, err := brew.NewFormula(r, tag, binname, gr.Homepage, gr.Description, "https://releases.manifold.co/", bottles)
-	if err != nil {
-		return cli.NewExitError("Could not create brew formula", -1)
-	}
+		formula, err := brew.NewFormula(r, tag, binname, gr.Homepage, gr.Description, "https://releases.manifold.co/", bottles)
+		if err != nil {
+			return cli.NewExitError("Could not create brew formula", -1)
+		}
 
-	bc, err := github.New(&git.Repository{
-		Owner: r.Owner,
-		Name:  "homebrew-brew",
-	})
-	if err != nil {
-		return cli.NewExitError("Could not create homebrew repo client: "+err.Error(), -1)
-	}
+		bc, err := github.New(&git.Repository{
+			Owner: r.Owner,
+			Name:  "homebrew-brew",
+		})
+		if err != nil {
+			return cli.NewExitError("Could not create homebrew repo client: "+err.Error(), -1)
+		}
 
-	err = bc.Commit(ctx, r, tag, formula)
-	if err != nil {
-		return cli.NewExitError("Could not update homebrew formula: "+err.Error(), -1)
+		err = bc.Commit(ctx, r, tag, formula)
+		if err != nil {
+			return cli.NewExitError("Could not update homebrew formula: "+err.Error(), -1)
+		}
+
+		zips = append(zips, bottles...)
 	}
 
 	s3c, err := s3.New("s3://releases.manifold.co")
@@ -161,8 +171,7 @@ func releaseCmd(cmd *cli.Context) error {
 		return cli.NewExitError("Could not create s3 client: "+err.Error(), -1)
 	}
 
-	s3files := append(zips, bottles...)
-	for _, file := range s3files {
+	for _, file := range zips {
 		err := s3c.Put(ctx, &file)
 		if err != nil {
 			return cli.NewExitError("Could not upload file to s3: "+err.Error(), -1)
