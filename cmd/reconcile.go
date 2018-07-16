@@ -57,7 +57,7 @@ func reconcileCmd(cmd *cli.Context) error {
 	for _, tag := range tagsWithNoRelease {
 
 		body := "*No changelog entry*"
-		if sec, ok := cl[*tag.Name]; ok {
+		if sec, ok := cl[(*tag.Name)[1:]]; ok {
 			body = sec.Body
 		}
 

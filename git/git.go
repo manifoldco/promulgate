@@ -27,7 +27,7 @@ func Open(path string) (*Repository, error) {
 
 	for k, v := range c.Remotes {
 		if k == "origin" {
-			url := v.URL
+			url := v.URLs[0]
 			parts := strings.SplitN(url, ":", -1)
 			parts = strings.SplitN(parts[len(parts)-1], "/", -1)
 			owner := parts[len(parts)-2]
