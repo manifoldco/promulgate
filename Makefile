@@ -6,14 +6,6 @@ GO_BUILD=CGO_ENABLED=0 go build -i --ldflags="-w -X $(shell go list)/version=$(V
 rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) \
     $(filter $(subst *,%,$2),$d))
 
-LINTERS=\
-	gofmt \
-	golint \
-	vet \
-	misspell \
-	ineffassign \
-	deadcode
-
 all: ci
 
 ci: $(LINTERS) build
@@ -23,42 +15,44 @@ ci: $(LINTERS) build
 # ################################################
 # Bootstrapping for base golang package deps
 # ################################################
+BOOTSTRAP=\
+	github.com/golang/dep/cmd/dep \
+	github.com/alecthomas/gometalinter \
+	github.com/jteeuwen/go-bindata
 
-CMD_PKGS=\
-	github.com/golang/lint/golint \
-	github.com/dominikh/go-tools/simple \
-	github.com/client9/misspell/cmd/misspell \
-	github.com/gordonklaus/ineffassign \
-	github.com/tsenart/deadcode \
-	github.com/alecthomas/gometalinter
+$(BOOTSTRAP):
+	go get -u $@
 
-define VENDOR_BIN_TMPL
-vendor/bin/$(notdir $(1)): vendor
-	go build -o $$@ ./vendor/$(1)
-VENDOR_BINS += vendor/bin/$(notdir $(1))
-endef
-
-$(foreach cmd_pkg,$(CMD_PKGS),$(eval $(call VENDOR_BIN_TMPL,$(cmd_pkg))))
-$(patsubst %,%-bin,$(filter-out gofmt vet,$(LINTERS))): %-bin: vendor/bin/%
-gofmt-bin vet-bin:
-
-bootstrap:
-	which dep || go get -u github.com/golang/dep/cmd/dep
+bootstrap: $(BOOTSTRAP)
+	gometalinter --install
 
 vendor: Gopkg.lock
-	dep ensure
+	dep ensure -v -vendor-only
 
-.PHONY: bootstrap $(CMD_PKGS)
+.PHONY: bootstrap
 
 # ################################################
 # Test and linting
 # ###############################################
+LINTERS=\
+	gofmt \
+	golint \
+	gosimple \
+	vet \
+	misspell \
+	ineffassign \
+	deadcode
 
-$(LINTERS): %: vendor/bin/gometalinter %-bin vendor
-	PATH=`pwd`/vendor/bin:$$PATH gometalinter --tests --disable-all --vendor \
-	    --deadline=5m -s data ./... --enable $@
+METALINT=gometalinter --tests --disable-all --vendor --deadline=5m -e "zz_.*\.go" \
+	 ./... --enable
 
-.PHONY: $(LINTERS)
+lint: $(LINTERS)
+
+$(LINTERS): vendor
+	$(METALINT) $@
+
+.PHONY: $(LINTERS) lint
+
 
 # ################################################
 # Building
