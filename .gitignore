@@ -1,3 +1,6 @@
 promulgate
 vendor
 build
+
+# coverage reporting
+cover-all.txt
